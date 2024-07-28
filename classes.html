@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="classes.css" />
+    <title>Classes</title>
+  </head>
+  <body>
+    <h1 style="text-align: center">Classes Available</h1>
+    <p style="text-align: center">
+      Here is a list of classes and their descriptions that are available at the
+      school you have selected!
+    </p>
+
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th>Class Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+      d3.csv("data.csv").then(function (data) {
+        console.log(data.slice(0, 5));
+        function getName(name) {
+          var to_find = new RegExp("\\?" + name + "=([^&]*)");
+          return decodeURIComponent(to_find.exec(location.search)[1]);
+        }
+
+        function getDept(value) {
+          var to_find = new RegExp(value + "=([^]*)");
+          return decodeURIComponent(to_find.exec(location.search)[1]);
+        }
+
+        var name = getName("name");
+        var dept = getDept("value");
+        console.log(name);
+        console.log(dept);
+        let to_loop = [];
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].School == name && data[i].Department == dept) {
+            to_loop.push({
+              name: data[i].CourseTitle,
+              value: data[i].CourseDescription,
+            });
+          }
+        }
+        console.log(to_loop);
+        function dup(to_check, name) {
+          const seen = new Set();
+          const res = [];
+
+          for (let i = 0; i < to_check.length; i++) {
+            if (seen.has(to_check[i][name])) {
+              continue;
+            } else {
+              seen.add(to_check[i][name]);
+              res.push(to_check[i]);
+            }
+          }
+
+          return res;
+        }
+        var removed_loop = dup(to_loop, "name");
+        console.log(removed_loop);
+
+        const bdy = d3.select("#tbl tbody");
+
+        const rows = bdy
+          .selectAll("tr")
+          .data(removed_loop)
+          .enter()
+          .append("tr");
+
+        rows.append("td").text((d) => d.name);
+        rows.append("td").text((d) => d.value);
+      });
+    </script>
+  </body>
+</html>

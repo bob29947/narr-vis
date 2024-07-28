@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="schools.css" />
+    <title>Schools</title>
+  </head>
+  <body>
+    <h1 style="text-align: center">Schools Avalible</h1>
+    <p style="text-align: center">
+      Here is a list of schools that offer classes for employees in the selected
+      department. Please click on a bar to see the list of classes available!
+      <svg></svg>
+    </p>
+
+    <div class="tooltip" style="opacity: 0"></div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+      d3.csv("data.csv").then(function (data) {
+        console.log(data.slice(0, 5));
+        function getName(name) {
+          var to_find = new RegExp("\\?" + name + "=([^]*)");
+          return decodeURIComponent(to_find.exec(location.search)[1]);
+        }
+
+        var name = getName("name");
+        console.log(name);
+
+        let schoolCount = {};
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].Department != name) {
+            continue;
+          }
+          let school = data[i].School;
+
+          if (schoolCount[school]) {
+            schoolCount[school] += 1;
+          } else {
+            schoolCount[school] = 1;
+          }
+        }
+        console.log(schoolCount);
+
+        let to_loop = [];
+
+        for (let dept in schoolCount) {
+          to_loop.push({ name: dept, value: schoolCount[dept] });
+        }
+
+        function sorting(one, two) {
+          return two.value - one.value;
+        }
+
+        to_loop.sort(sorting);
+        to_loop = to_loop.slice(0, 10);
+        console.log(to_loop);
+
+        let width = window.innerWidth - 500;
+        let height = window.innerHeight - 150;
+
+        let svg = d3
+          .select("svg")
+          .attr("width", width + 500)
+          .attr("height", height + 150);
+
+        var maxValue = 0;
+
+        for (var i = 0; i < to_loop.length; i++) {
+          if (to_loop[i].value > maxValue) {
+            maxValue = to_loop[i].value;
+          }
+        }
+
+        var x = d3.scaleLinear().domain([0, maxValue]).range([0, width]);
+
+        let schoolNames = [];
+        for (let i = 0; i < to_loop.length; i++) {
+          schoolNames.push(to_loop[i].name);
+        }
+
+        let y = d3
+          .scaleBand()
+          .domain(schoolNames)
+          .range([0, height])
+          .padding(0.15);
+
+        let g = svg.append("g").attr("transform", `translate(${300},${50})`);
+
+        g.append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(x).ticks(5));
+
+        g.append("g").call(d3.axisLeft(y));
+
+        let tooltip = d3.select(".tooltip");
+
+        g.selectAll(".bar")
+          .data(to_loop)
+          .enter()
+          .append("rect")
+          .attr("class", "chart")
+          .attr("x", 0)
+          .attr("y", (d) => y(d.name))
+          .attr("height", y.bandwidth())
+          .attr("width", (d) => x(d.value))
+          .on("mouseover", function (event, d) {
+            tooltip.transition().style("opacity", 0.8);
+            tooltip
+              .html(d.value)
+              .style("left", event.pageX + "px")
+              .style("top", event.pageY + "px");
+          })
+
+          .on("click", function (event, f) {
+            let url = `classes.html?name=${encodeURIComponent(
+              f.name
+            )}&value=${name}`;
+            window.location.href = url;
+          });
+
+        g.append("text")
+          .attr("transform", `translate(${width / 2 - 100}, ${height + 80})`)
+          .text("Number of Classes Available");
+      });
+    </script>
+  </body>
+</html>

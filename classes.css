@@ -1,0 +1,18 @@
+table {
+  width: 80%;
+
+  margin: auto;
+}
+
+td {
+  border: gray 1px solid;
+}
+
+th {
+  border: gray 1px solid;
+  background-color: lightgray;
+  color: black;
+}
+tr:nth-child(even) {
+  background-color: lightblue;
+}

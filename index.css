@@ -1,0 +1,6 @@
+.chart {
+  fill: gray;
+}
+.chart:hover {
+  fill: skyblue;
+}

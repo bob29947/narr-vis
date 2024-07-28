@@ -1,0 +1,14 @@
+.chart {
+  fill: gray;
+}
+.chart:hover {
+  fill: skyblue;
+}
+
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 30px;
+  height: 18px;
+  background: lightgrey;
+}
